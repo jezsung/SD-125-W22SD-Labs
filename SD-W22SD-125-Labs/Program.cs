@@ -42,7 +42,7 @@ public class VehicleTracker
     // METHODS
     public void GenerateSlots()
     {
-        for (int i = 0; i <= this.Capacity; i++)
+        for (int i = 1; i <= this.Capacity; i++)
         {
             this.VehicleList.Add(i, null);
         }
