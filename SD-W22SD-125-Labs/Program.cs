@@ -29,6 +29,7 @@ public class VehicleTracker
     {
         this.Capacity = capacity;
         this.Address = address;
+        this.SlotsAvailable = Capacity;
         this.VehicleList = new Dictionary<int, Vehicle>();
 
         this.GenerateSlots();
@@ -55,7 +56,7 @@ public class VehicleTracker
             if (slot.Value == null)
             {
                 this.VehicleList[slot.Key] = vehicle;
-                this.SlotsAvailable++;
+                this.SlotsAvailable--;
                 return;
             }
         }
@@ -67,7 +68,7 @@ public class VehicleTracker
         try
         {
             int slot = this.VehicleList.First(v => v.Value.Licence == licence).Key;
-            this.SlotsAvailable--;
+            this.SlotsAvailable++;
             this.VehicleList[slot] = null;
         }
         catch
@@ -78,10 +79,11 @@ public class VehicleTracker
 
     public bool RemoveVehicle(int slotNumber)
     {
-        if (slotNumber > this.Capacity)
+        if (slotNumber < 1 || slotNumber > this.Capacity)
         {
-            return false;
+            throw new IndexOutOfRangeException(BadSlotNumberMessage);
         }
+
         this.VehicleList[slotNumber] = null;
         this.SlotsAvailable++;
         return true;
@@ -89,9 +91,7 @@ public class VehicleTracker
 
     public List<Vehicle> ParkedPassholders()
     {
-        List<Vehicle> passHolders = new List<Vehicle>();
-        passHolders.Add(this.VehicleList.FirstOrDefault(v => v.Value.Pass).Value);
-        return passHolders;
+        return this.VehicleList.Where(slot => slot.Value.Pass).Select(slot => slot.Value).ToList();
     }
 
     public int PassholderPercentage()
