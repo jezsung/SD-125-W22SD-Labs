@@ -54,6 +54,8 @@ namespace Parkomatik.Models
                 throw new IndexOutOfRangeException();
             }
 
+            vehicle.PassID = pass.ID;
+            vehicle.Pass = pass;
             pass.Vehicles.Add(vehicle);
 
             parkingContext.Passes.Update(pass);

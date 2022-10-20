@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using Parkomatik.Models;
 
@@ -125,7 +126,58 @@ namespace ParkomatikUnitTest
             parkingHelper.CreateParkingSpot();
 
             // Assert
-            Assert.AreEqual(1, savedParkingSpots.Count());            
+            Assert.AreEqual(1, savedParkingSpots.Count());
+        }
+
+        [TestMethod]
+        public void ShouldAddVehicleToPass()
+        {
+            var mockDbContext = new Mock<ParkingContext>();
+
+            var testDirtyPasses = new List<Pass>();
+            var testPasses = new List<Pass>();
+            var testPass = new Pass()
+            {
+                ID = 1,
+                Purchaser = "Customer1",
+                Premium = false,
+                Capacity = 3
+            };
+            var testVehicle = new Vehicle()
+            {
+                ID = 1,
+                License = "ABC101",
+                Parked = false
+            };
+
+            mockDbContext
+                .Setup(x => x.Passes.First(p => It.IsAny<bool>()))
+                .Returns(testPass);
+            mockDbContext
+                .Setup(x => x.Vehicles.First(It.IsAny<Func<Vehicle, bool>>()))
+                .Returns(testVehicle);
+            mockDbContext
+                .Setup(x => x.Passes.Update(It.IsAny<Pass>()))
+                .Callback((Pass pass) =>
+                {
+                    testDirtyPasses.Add(pass);
+                });
+            mockDbContext
+                .Setup(x => x.SaveChanges())
+                .Callback((Pass pass) =>
+                {
+                    testPasses.RemoveAll(p => testDirtyPasses.FirstOrDefault(dp => dp.ID == p.ID) != null);
+                    testPasses.AddRange(testDirtyPasses);
+                });
+
+            var parkingHelper = new ParkingHelper(mockDbContext.Object);
+
+            // Act
+            parkingHelper.AddVehicleToPass(testPass.Purchaser, testVehicle.License);
+
+            // Assert
+            Assert.AreEqual(1, testPasses.Count());
+            Assert.AreEqual(1, testPasses.First().Vehicles.Count());
         }
     }
 }
