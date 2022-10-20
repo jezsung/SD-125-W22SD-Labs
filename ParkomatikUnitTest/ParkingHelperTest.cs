@@ -68,5 +68,34 @@ namespace ParkomatikUnitTest
                 parkingHelper.CreatePass(purchaser, true, 10);
             });
         }
+
+        [TestMethod]
+        [DataRow(-3)]
+        [DataRow(0)]
+        public void ShouldThrowExceptionForCreatePassWhenCapacityIsNegative(int capacity)
+        {
+            var mockDbContext = new Mock<ParkingContext>();
+
+            var addedPasses = new List<Pass>();
+            var savedPasses = new List<Pass>();
+
+            mockDbContext.Setup(x => x.Passes.Add(It.IsAny<Pass>())).Callback((Pass pass) =>
+            {
+                addedPasses.Add(pass);
+            });
+            mockDbContext.Setup(x => x.SaveChanges()).Callback(() =>
+            {
+                savedPasses.AddRange(addedPasses);
+                addedPasses.Clear();
+            });
+
+            var parkingHelper = new ParkingHelper(mockDbContext.Object);
+
+            // Act & Assert
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                parkingHelper.CreatePass("Customer1", true, capacity);
+            });
+        }
     }
 }
