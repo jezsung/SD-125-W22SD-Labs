@@ -7,5 +7,6 @@
         public virtual Pass Pass { get; set; }
         public virtual ICollection<Reservation> Reservations { get; set; }
         public bool Parked { get; set; }
+        public string License { get; set; }
     }
 }
