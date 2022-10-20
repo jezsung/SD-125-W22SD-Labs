@@ -45,6 +45,7 @@ namespace ParkomatikUnitTest
         [DataRow("ABCDEFGHIJKLMNOPQRSTU")]
         public void ShouldThrowExceptionForCreatePassWhenPurchaserLengthNotBetween3To20(string purchaser)
         {
+            // Arrange
             var mockDbContext = new Mock<ParkingContext>();
 
             var addedPasses = new List<Pass>();
@@ -74,6 +75,7 @@ namespace ParkomatikUnitTest
         [DataRow(0)]
         public void ShouldThrowExceptionForCreatePassWhenCapacityIsNegative(int capacity)
         {
+            // Arrange
             var mockDbContext = new Mock<ParkingContext>();
 
             var addedPasses = new List<Pass>();
