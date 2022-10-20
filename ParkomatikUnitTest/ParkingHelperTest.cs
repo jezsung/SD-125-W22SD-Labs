@@ -97,5 +97,33 @@ namespace ParkomatikUnitTest
                 parkingHelper.CreatePass("Customer1", true, capacity);
             });
         }
+
+        [TestMethod]
+        public void ShouldCreateParkingSpot()
+        {
+            // Arrange
+            var mockDbContext = new Mock<ParkingContext>();
+
+            var addedParkingSpots = new List<ParkingSpot>();
+            var savedParkingSpots = new List<ParkingSpot>();
+
+            mockDbContext.Setup(x => x.ParkingSpots.Add(It.IsAny<ParkingSpot>())).Callback((ParkingSpot parkingSpot) =>
+            {
+                addedParkingSpots.Add(parkingSpot);
+            });
+            mockDbContext.Setup(x => x.SaveChanges()).Callback(() =>
+            {
+                savedParkingSpots.AddRange(addedParkingSpots);
+                addedParkingSpots.Clear();
+            });
+
+            var parkingHelper = new ParkingHelper(mockDbContext.Object);
+
+            // Act
+            parkingHelper.CreateParkingSpot();
+
+            // Assert
+            Assert.AreEqual(1, savedParkingSpots.Count());            
+        }
     }
 }
