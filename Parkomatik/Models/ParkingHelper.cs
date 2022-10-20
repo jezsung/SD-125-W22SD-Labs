@@ -1,4 +1,6 @@
-﻿namespace Parkomatik.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Parkomatik.Models
 {
     public class ParkingHelper
     {
@@ -40,6 +42,22 @@
             parkingContext.SaveChanges();
 
             return newSpot;
+        }
+
+        public void AddVehicleToPass(string passholderName, string vehicleLicense)
+        {
+            Pass pass = parkingContext.Passes.Include(p => p.Vehicles).First(p => p.Purchaser == passholderName);
+            Vehicle vehicle = parkingContext.Vehicles.First(v => v.License == vehicleLicense);
+
+            if (pass.Vehicles.Count() == pass.Capacity)
+            {
+                throw new IndexOutOfRangeException();
+            }
+
+            pass.Vehicles.Add(vehicle);
+
+            parkingContext.Passes.Update(pass);
+            parkingContext.SaveChanges();
         }
     }
 }
